@@ -79,6 +79,7 @@ import java.util.*;
                     break;                 // 退出
                 } else {
                     username = input; // 更新用户名
+                    changePassword(list,username,password);
                 }
             }
         }
@@ -150,6 +151,8 @@ import java.util.*;
             int index = random.nextInt(allowedChars.length());
             userID.append(allowedChars.charAt(index));
         }
+        int userIndex=findUserIndexByUsername(userList,username);
+        userList.get(userIndex).setUserID(String.valueOf(userID));
         return userID.toString();
     }
     //通过用户名寻找索引
