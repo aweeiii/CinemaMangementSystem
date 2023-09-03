@@ -112,7 +112,7 @@ public class User extends Person {
     //消费者注册
     public boolean registerUser(String username, String password, String email, String phoneNumber) {
         if (username.length() >= 5 && isPasswordValid(password)) {
-            String userID = getRandomUserID(username);
+            String userID = getRandomUserID();
             String userLevel = "铜牌用户";
             double CumulativeConsumptionExpense = 0;
             int CumulativeConsumptionNum = 0;
@@ -321,7 +321,7 @@ public class User extends Person {
                 timer.schedule(task, 120000);                 // 120000毫秒=2分钟
             }
             double totalTicketsPrice=judgeUserLevel(username,getCumulativeConsumptionExpense())*session.getTicketPrice()*numSeats;
-            System.out.println("座位锁定两分钟，" + session.getTicketPrice() + "一共需支付"+totalTicketsPrice+"元，等待您支付...");
+            System.out.println("座位锁定两分钟，" +  "一共需支付"+totalTicketsPrice+"元，等待您支付...");
             System.out.println("请输入你想要使用的支付方式");
             System.out.println("1.支付宝");
             System.out.println("2.微信");
@@ -352,9 +352,23 @@ public class User extends Person {
         System.out.println("请输入电影票的电子ID：");
         Scanner sc = new Scanner(System.in);
         String input = sc.next();
-        if (user.getPurchaseHistory().contains(input)) {
-            System.out.println("取票成功！");
-        } else System.out.println("电影票的电子ID错误。");
+        boolean found = false;
+        for (String history : user.getPurchaseHistory()) {
+            String[] ticketIDs = history.split("电影票的电子ID编号：")[1].split("，");
+            for (String ticketID : ticketIDs) {
+                if (ticketID.equals(input)) {
+                    System.out.println("取票成功！");
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                break;
+            }
+        }
+        if (!found) {
+            System.out.println("电影票的电子ID编号错误。");
+        }
     }
 
     public double judgeUserLevel(String username, double cumulativeConsumptionExpense) {

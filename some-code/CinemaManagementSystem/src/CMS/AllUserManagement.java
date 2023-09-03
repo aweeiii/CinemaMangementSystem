@@ -142,7 +142,7 @@ import java.util.*;
         return password.toString();
     }
     //随机生成用户ID
-    public String getRandomUserID(String username){
+    public String getRandomUserID(){
         //所有允许的字符集合
         String allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
         StringBuilder userID = new StringBuilder();
@@ -151,8 +151,6 @@ import java.util.*;
             int index = random.nextInt(allowedChars.length());
             userID.append(allowedChars.charAt(index));
         }
-        int userIndex=findUserIndexByUsername(userList,username);
-        userList.get(userIndex).setUserID(String.valueOf(userID));
         return userID.toString();
     }
     //通过用户名寻找索引
