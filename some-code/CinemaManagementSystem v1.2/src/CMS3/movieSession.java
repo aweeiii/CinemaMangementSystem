@@ -1,4 +1,5 @@
-package CMS;
+package CMS3;
+
 public class movieSession {
     private String movieName;
     private double ticketPrice;
@@ -6,25 +7,57 @@ public class movieSession {
     private String showtime;
     private int totalSeats;
     private int availableSeats;
-    private  String[][] seatMap;
+    private String[][] seatMap;
 
 
-    public movieSession(String movieName,double ticketPrice, String videoHall, String showtime, int totalSeats,int availableSeats,String [][]seatMap) {
-        this.movieName=movieName;
+    public movieSession(String movieName, double ticketPrice, String videoHall, String showtime, int totalSeats, int availableSeats, String[][] seatMap) {
+        this.movieName = movieName;
         this.ticketPrice = ticketPrice;
         this.videoHall = videoHall;
         this.showtime = showtime;
         this.totalSeats = totalSeats;
         this.availableSeats = availableSeats;
-        this.seatMap=seatMap;
+        this.seatMap = seatMap;
     }
-    public movieSession(String movieName,double ticketPrice, String videoHall, String showtime, int totalSeats,int availableSeats) {
-        this.movieName=movieName;
+
+    public movieSession(String movieName, double ticketPrice, String videoHall, String showtime, int totalSeats, int availableSeats) {
+        this.movieName = movieName;
         this.ticketPrice = ticketPrice;
         this.videoHall = videoHall;
         this.showtime = showtime;
         this.totalSeats = totalSeats;
         this.availableSeats = availableSeats;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("movieSession{");
+        sb.append("movieName='").append(movieName).append("',");
+        sb.append("ticketPrice=").append("'").append(ticketPrice).append("',");
+        sb.append("videoHall='").append(videoHall).append("',");
+        sb.append("showtime='").append(showtime).append("',");
+        sb.append("totalSeats=").append("'").append(totalSeats).append("',");
+        sb.append("availableSeats=").append("'").append(availableSeats).append("',");
+        sb.append("seatMap=[,\n");
+
+        for (String[] row : seatMap) {
+            sb.append("  [");
+            boolean firstSeat = true;
+            for (String seat : row) {
+                if (!firstSeat) {
+                    sb.append(" ");
+                }
+                // 替换单引号和逗号为空格
+                String sanitizedSeat = seat.replace("'", "").replace(",", "");
+
+                sb.append(sanitizedSeat);
+                firstSeat = false;
+            }
+            sb.append("],\n");
+        }
+        sb.append("]}");
+        return sb.toString();
     }
 
 
@@ -86,8 +119,8 @@ public class movieSession {
 
 
     public String[][] initializeSeatMap(int numRows, int numCols) {
-        this.seatMap=new String[numRows+1][numCols+1];
-        seatMap[0][0] = " ";
+        this.seatMap = new String[numRows + 1][numCols + 1];
+        seatMap[0][0] = "";
         int row, col;
         for (row = 1; row < numRows + 1; row++) {
             for (col = 1; col < numCols + 1; col++) {
@@ -96,7 +129,7 @@ public class movieSession {
         }
 
         for (row = 0, col = 1; col < numCols + 1; col++) {
-            seatMap[row][col] = String.format("%2d", col);
+            seatMap[row][col] = String.valueOf(col);
         }
 
         for (row = 1, col = 0; row < numRows + 1; row++) {
@@ -104,15 +137,18 @@ public class movieSession {
         }
         return seatMap;
     }
-    public void displaySeatMap(int numRows,int numCols) {
-        this.seatMap=initializeSeatMap(numRows,numCols);
+
+    public void displaySeatMap(int numRows, int numCols, String[][] seatMap) {
         System.out.println("==============座位图==============");
         for (int row = 0; row < numRows + 1; row++) {
             for (int col = 0; col < numCols + 1; col++) {
-                System.out.print(String.format("%2s", seatMap[row][col]) + " ");
+                // 检查元素是否为null，如果为null则打印空格
+                String seat = (seatMap[row][col] != null) ? seatMap[row][col] : " ";
+                System.out.print(String.format("%2s", seat) + " ");
             }
             System.out.println();
         }
     }
+
 }
 

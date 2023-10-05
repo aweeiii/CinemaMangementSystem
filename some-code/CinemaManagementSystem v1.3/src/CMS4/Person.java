@@ -1,4 +1,4 @@
-package CMS;
+package CMS4;
 
 public class Person extends AllUserManagement {
     private String username;
@@ -29,6 +29,19 @@ public class Person extends AllUserManagement {
         this.password = password;
         this.userID = userID;
     }
+
+    @Override
+    public String toString() {
+        return "Person{" +
+                "username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", locked=" + locked +
+                ", userID='" + userID + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
+
     public Person(String username, String password) {
         this.username = username;
         this.password = password;

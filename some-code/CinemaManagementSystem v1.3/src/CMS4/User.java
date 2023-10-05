@@ -1,17 +1,17 @@
-package CMS;
+package CMS4;
 
-import java.time.LocalDateTime;
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 
-
 public class User extends Person {
     private String userID; // 用户ID
     private String username; // 用户名
     private String userLevel; // 用户级别
-    private LocalDateTime registrationTime; // 注册时间
+    private String registrationTime; // 注册时间
     private double CumulativeConsumptionExpense; // 累计消费总金额
     private int CumulativeConsumptionNum; // 累计消费次数
     private String phoneNumber; // 手机号
@@ -40,8 +40,9 @@ public class User extends Person {
         this.email = email;
     }
 
-    public User(String userID, String username, String userLevel, LocalDateTime registrationTime, double cumulativeConsumptionExpense, int cumulativeConsumptionNum, String phoneNumber, String email, String password) {
-        super(username, password);
+    public User(String userID, String username, String userLevel, String registrationTime, double cumulativeConsumptionExpense, int cumulativeConsumptionNum, String phoneNumber, String email, String password, ArrayList<String> purchaseHistory) {
+        this.username = username;
+        this.password = password;
         this.userID = userID;
         this.userLevel = userLevel;
         this.registrationTime = registrationTime;
@@ -49,9 +50,10 @@ public class User extends Person {
         CumulativeConsumptionNum = cumulativeConsumptionNum;
         this.phoneNumber = phoneNumber;
         this.email = email;
-        this.timer=new Timer();
-        this.purchaseHistory = new ArrayList<>();
+        this.timer = new Timer();
+        this.purchaseHistory = purchaseHistory;
     }
+
 
     public String getUserLevel() {
         return userLevel;
@@ -61,7 +63,7 @@ public class User extends Person {
         this.userLevel = userLevel;
     }
 
-    public LocalDateTime getRegistrationTime() {
+    public String getRegistrationTime() {
         return registrationTime;
     }
 
@@ -109,6 +111,70 @@ public class User extends Person {
         locked = true;
     }
 
+    @Override
+    public String getUserID() {
+        return userID;
+    }
+
+    @Override
+    public void setUserID(String userID) {
+        this.userID = userID;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setRegistrationTime(String registrationTime) {
+        this.registrationTime = registrationTime;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Override
+    public boolean isLocked() {
+        return locked;
+    }
+
+    @Override
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
+
+    public Timer getTimer() {
+        return timer;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "userID='" + userID + '\'' +
+                ", username='" + username + '\'' +
+                ", userLevel='" + userLevel + '\'' +
+                ", registrationTime='" + registrationTime + '\'' +
+                ", CumulativeConsumptionExpense='" + CumulativeConsumptionExpense + "'" +
+                ", CumulativeConsumptionNum='" + CumulativeConsumptionNum + "'" +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", purchaseHistory='" + purchaseHistory + "'" +
+                '}';
+    }
+
     //消费者注册
     public boolean registerUser(String username, String password, String email, String phoneNumber) {
         if (username.length() >= 5 && isPasswordValid(password)) {
@@ -116,8 +182,9 @@ public class User extends Person {
             String userLevel = "铜牌用户";
             double CumulativeConsumptionExpense = 0;
             int CumulativeConsumptionNum = 0;
-            LocalDateTime registrationTime = LocalDateTime.now();
-            userList.add(new User(userID, username, userLevel, registrationTime, CumulativeConsumptionExpense, CumulativeConsumptionNum, phoneNumber, email, password));
+            ArrayList<String> purchaseHistory = new ArrayList<>();
+            userList.add(new User(userID, username, userLevel, generateRegistrationTime(), CumulativeConsumptionExpense, CumulativeConsumptionNum, phoneNumber, email, password, purchaseHistory));
+            writePersonsToExcel(userList, userFile);
             System.out.println("用户注册成功：" + username);
             return true;
         } else return false;
@@ -129,7 +196,10 @@ public class User extends Person {
         if (userIndex != -1) {
             User user = (User) userList.get(userIndex);
             if (!user.isLocked()) {
-                if (user.getPassword().equals(password)) {
+                // 获取存储在数据库或文件中的密码哈希
+                String storedHashedPassword = user.getPassword();
+                // 比较用户提供的密码哈希与存储的密码哈希
+                if (BCrypt.checkpw(password, storedHashedPassword)) {
                     loginAttempts.remove(username);
                     System.out.println("登录成功，欢迎：" + username + "!");
                     userMenu1(username, password);
@@ -137,7 +207,7 @@ public class User extends Person {
                     int attempts = loginAttempts.getOrDefault(username, 0) + 1;
                     loginAttempts.put(username, attempts);
                     if (attempts >= 5) {
-                        //user.lockAccount();
+                        user.lockAccount(); // 锁定用户账户
                         System.out.println("由于登录次数过多，账户已被锁定");
                     } else {
                         System.out.println("密码错误。剩余尝试次数：" + (5 - attempts));
@@ -150,6 +220,7 @@ public class User extends Person {
             System.out.println("用户不存在");
         }
     }
+
 
     public void userMainMenu() {
         Scanner sc = new Scanner(System.in);
@@ -296,13 +367,14 @@ public class User extends Person {
         System.out.println("请输入你想要购买的票数：");
         int numSeats = sc.nextInt();
         int sessionIndex = findSessionIndexByMovieName(sessionList, movieName, videoHall, showtime);
+        if(sessionIndex!=-1){
         movieSession session = sessionList.get(sessionIndex);
         Timer timer = new Timer();
         int userIndex = findUserIndexByUsername(userList, username);
         Person person = userList.get(userIndex);
         User user = (User) person;
         if (numSeats <= session.getAvailableSeats()) {
-            session.displaySeatMap(7, 12);
+            session.displaySeatMap(7, 12, session.getSeatMap());
             int[] selectedRows = new int[numSeats];
             int[] selectedCols = new int[numSeats];
             String[] ticketID = new String[numSeats];
@@ -320,8 +392,8 @@ public class User extends Person {
                 TimerTask task = new SeatUnlockTask(selectedRows[i], selectedCols[i], session.getSeatMap());
                 timer.schedule(task, 120000);                 // 120000毫秒=2分钟
             }
-            double totalTicketsPrice=judgeUserLevel(username,getCumulativeConsumptionExpense())*session.getTicketPrice()*numSeats;
-            System.out.println("座位锁定两分钟，" +  "一共需支付"+totalTicketsPrice+"元，等待您支付...");
+            double totalTicketsPrice = judgeUserLevel(username, user.getCumulativeConsumptionExpense()) * session.getTicketPrice() * numSeats;
+            System.out.println("座位锁定两分钟，" + "一共需支付" + totalTicketsPrice + "元，等待您支付...");
             System.out.println("请输入你想要使用的支付方式");
             System.out.println("1.支付宝");
             System.out.println("2.微信");
@@ -332,17 +404,26 @@ public class User extends Person {
                 timer.cancel();
                 for (int i = 0; i < numSeats; i++) {
                     session.getSeatMap()[selectedRows[i]][selectedCols[i]] = "X";// 将已购座位状态变为 "X"
-                    ticketID[i] = getTicketID();}
-                    for (int j = 0; j < numSeats; j++) {
-                        user.getPurchaseHistory().add("购票时间：" + LocalDateTime.now() + "，片名：" + movieName + "，片长：" + movieList.get(findMovieIndexByMovieName(movieList, movieName)).getDuration() + "，放映厅：" + session.getVideoHall() + "，放映时间：" + session.getShowtime() + "，座位信息：" + selectedRows[j] + "-" + selectedCols[j] + "，电影票的电子ID编号：" + ticketID[j]);
-                    }
-                double cumulativeConsumptionExpense=user.getCumulativeConsumptionExpense()+totalTicketsPrice;
+                    ticketID[i] = getTicketID();
+                }
+                for (int j = 0; j < numSeats; j++) {
+                    user.getPurchaseHistory().add("购票时间：" + generateRegistrationTime() + "，片名：" + movieName + "，片长：" + movieList.get(findMovieIndexByMovieName(movieList, movieName)).getDuration() + "，放映厅：" + session.getVideoHall() + "，放映时间：" + session.getShowtime() + "，座位信息：" + selectedRows[j] + "-" + selectedCols[j] + "，电影票的电子ID编号：" + ticketID[j]);
+                }
+                double cumulativeConsumptionExpense = user.getCumulativeConsumptionExpense() + totalTicketsPrice;
                 user.setCumulativeConsumptionExpense(cumulativeConsumptionExpense);
+                user.judgeUserLevel(username, cumulativeConsumptionExpense);
+                session.setAvailableSeats(session.getAvailableSeats() - numSeats);
+                int ConsumptionNum = user.getCumulativeConsumptionNum();
+                ConsumptionNum++;
+                user.setCumulativeConsumptionNum(ConsumptionNum);
+                for (int i = 0; i < numSeats; i++) {
+                    System.out.println("片名：" + movieName + "，片长：" + movieList.get(findMovieIndexByMovieName(movieList, movieName)).getDuration() + "，放映厅：" + session.getVideoHall() + "，放映时间：" + session.getShowtime() + "，座位信息：" + selectedRows[i] + "-" + selectedCols[i] + "，电影票的电子ID编号：" + ticketID[i]);
+                }
             }
 
         } else {
             System.out.println("订购数量超出空闲座位数");
-        }
+        }}else System.out.println("该场次不存在！");
     }
 
     public void takeTicket(String username) {
@@ -378,21 +459,26 @@ public class User extends Person {
         User user = (User) person;
         if (cumulativeConsumptionExpense >= 0 && cumulativeConsumptionExpense <= 300) {
             user.setUserLevel("铜牌用户");
-            discount=1.0;
+            discount = 1.0;
         } else if (cumulativeConsumptionExpense > 300 && cumulativeConsumptionExpense <= 600) {
             user.setUserLevel("银牌用户");
-            discount=0.95;
+            discount = 0.95;
         } else if (cumulativeConsumptionExpense > 600) {
             user.setUserLevel("金牌用户");
-            discount=0.88;
+            discount = 0.88;
         }
         return discount;
     }
-    public void printUserPurchaseHistory(String username){
+
+    public void printUserPurchaseHistory(String username) {
         int userIndex = findUserIndexByUsername(userList, username);
         Person person = userList.get(userIndex);
         User user = (User) person;
-        System.out.println(user.getPurchaseHistory());
+        StringBuilder output = new StringBuilder();
+        for (String ticketInfo : user.getPurchaseHistory()) {
+            output.append(ticketInfo).append(", ");
+        }
+        System.out.println(output);
     }
 
     public void setTimer(Timer timer) {

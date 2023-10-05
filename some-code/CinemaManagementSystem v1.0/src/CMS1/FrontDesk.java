@@ -1,10 +1,9 @@
-package CMS;
+package CMS1;
 
-import java.time.LocalDateTime;
 import java.util.Scanner;
 
 public class FrontDesk extends Person {
-    private LocalDateTime registrationTime;  // 注册时间
+    private String registrationTime;  // 注册时间
     private String phoneNumber;    // 手机号
     private String email;// 邮箱
     private String type;
@@ -16,7 +15,7 @@ public class FrontDesk extends Person {
     public FrontDesk() {
     }
 
-    public FrontDesk(String userID, String username, LocalDateTime registrationTime, String type, String password, String phoneNumber, String email) {
+    public FrontDesk(String userID, String username, String registrationTime, String type, String password, String phoneNumber, String email) {
         this.userID = userID;
         this.username = username;
         this.password = password;
@@ -26,13 +25,10 @@ public class FrontDesk extends Person {
         this.email = email;
     }
 
-    public LocalDateTime getRegistrationTime() {
+    public String getRegistrationTime() {
         return registrationTime;
     }
 
-    public void setRegistrationTime(LocalDateTime registrationTime) {
-        this.registrationTime = registrationTime;
-    }
 
     public String getPhoneNumber() {
         return phoneNumber;
@@ -54,9 +50,6 @@ public class FrontDesk extends Person {
         return type;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
 
     @Override
     public String getUsername() {
@@ -124,8 +117,9 @@ public class FrontDesk extends Person {
             System.out.println("用户不存在");
         }
     }
+
     public void frontDeskMainMenu() {
-        Scanner sc=new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
         boolean shouldExit = false;
         while (!shouldExit) {
             System.out.println("=====================================");
@@ -140,14 +134,16 @@ public class FrontDesk extends Person {
                     String username = sc.next();
                     System.out.println("请输入你的密码：");
                     String password = sc.next();
-                    loginFrontDesk(username, password);}
+                    loginFrontDesk(username, password);
+                }
                 case "e" -> shouldExit = true;
                 default -> System.out.println("无效的选项，请重新选择。");
             }
         }
     }
+
     public void frontDeskMenu() {
-        Scanner sc=new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
         boolean shouldExit = false;
         while (!shouldExit) {
             System.out.println("=====================================");
@@ -167,22 +163,79 @@ public class FrontDesk extends Person {
             }
         }
     }
-    public void sellTicket(){
-        Scanner sc=new Scanner(System.in);
+
+    public void sellTicket() {
+        Scanner sc = new Scanner(System.in);
         System.out.println("请输入顾客想要观看的场次：电影名，放映厅，放映时间");
-        String movieName=sc.next();
-        String videoHall=sc.next();
-        String showtime=sc.next();
-        System.out.println("请输入顾客的用户名或手机号：");
-        String input=sc.next();
-        System.out.println("请输入顾客需要支付的金额：");
-        double money=sc.nextDouble();
-        int movieIndex=findMovieIndexByMovieName(movieList,movieName);
-        Movie movie=movieList.get(movieIndex);
-        for (Person user:userList) {
-            if(user.getUsername().equals(input)||user.getPhoneNumber().equals(input)){
-                System.out.println("片名：" + movie.getMovieName() + "，导演：" + movie.getDirector()+ "，主演：" + movie.getLeadingRole() + "，剧情简介：" + movie.getSynopsis()+ "，时长："+movie.getDuration()+"，电影票ID："+getTicketID());
+        String movieName = sc.next();
+        String videoHall = sc.next();
+        String showtime = sc.next();
+        int sessionIndex = findSessionIndexByMovieName(sessionList, movieName, videoHall, showtime);
+        if (sessionIndex != -1) {
+            movieSession session = sessionList.get(sessionIndex);
+            System.out.println("请输入顾客的用户名或手机号：");
+            String input = sc.next();
+            int userIndex;
+            int userIndex1 = findUserIndexByUsername(userList, input);
+            int userIndex2 = findUserIndexByPhoneNumber(userList, input);
+            if (userIndex1 == -1 && userIndex2 == -1) {
+                System.out.println("用户不存在");
+                return;
+            } else if (userIndex1 != -1) {
+                userIndex = userIndex1;
+            } else {
+                userIndex = userIndex2;
             }
-        }
+            User user = (User) userList.get(userIndex);
+            System.out.println("请输入顾客想要购买的票数：");
+            int numSeats = sc.nextInt();
+            if (numSeats <= session.getAvailableSeats()) {
+                session.displaySeatMap(7, 12, session.getSeatMap());
+                int[] selectedRows = new int[numSeats];
+                int[] selectedCols = new int[numSeats];
+                String[] ticketID = new String[numSeats];
+                for (int i = 0; i < numSeats; i++) {
+                    System.out.print("请输入你选择的行数" + ": ");
+                    selectedRows[i] = sc.nextInt();
+                    System.out.print("请输入你选择的列数" + ": ");
+                    selectedCols[i] = sc.nextInt();
+                    if (!isValidSeat(selectedRows[i], selectedCols[i], session)) {
+                        System.out.println("选择的座位无效或该位置已有人预定");
+                        return;
+                    }
+                }
+                double totalTicketsPrice = user.judgeUserLevel(user.getUsername(), user.getCumulativeConsumptionExpense()) * session.getTicketPrice() * numSeats;
+                System.out.println("顾客需要支付的金额：" + totalTicketsPrice);
+                System.out.println("请输入顾客想要使用的支付方式");
+                System.out.println("1.支付宝");
+                System.out.println("2.微信");
+                System.out.println("3.银行卡");
+                int num = sc.nextInt();
+                if (num >= 1 && num <= 3) {
+                    System.out.println("顾客支付成功！");
+                    int movieIndex = findMovieIndexByMovieName(movieList, movieName);
+                    Movie movie = movieList.get(movieIndex);
+                    for (int i = 0; i < numSeats; i++) {
+                        session.getSeatMap()[selectedRows[i]][selectedCols[i]] = "X";// 将已购座位状态变为 "X"
+                        ticketID[i] = getTicketID();
+                    }
+                    for (int j = 0; j < numSeats; j++) {
+                        user.getPurchaseHistory().add("购票时间：" + generateRegistrationTime() + "，片名：" + movieName + "，片长：" + movie.getDuration() + "，放映厅：" + session.getVideoHall() + "，放映时间：" + session.getShowtime() + "，座位信息：" + selectedRows[j] + "-" + selectedCols[j] + "，电影票的电子ID编号：" + ticketID[j]);
+                    }
+                    double cumulativeConsumptionExpense = user.getCumulativeConsumptionExpense() + totalTicketsPrice;
+                    user.setCumulativeConsumptionExpense(cumulativeConsumptionExpense);
+                    user.judgeUserLevel(user.getUsername(), cumulativeConsumptionExpense);
+                    session.setAvailableSeats(session.getAvailableSeats() - numSeats);
+                    int ConsumptionNum = user.getCumulativeConsumptionNum();
+                    ConsumptionNum++;
+                    user.setCumulativeConsumptionNum(ConsumptionNum);
+                    for (int i = 0; i < numSeats; i++) {
+                        System.out.println("片名：" + movieName + "，片长：" + movie.getDuration() + "，放映厅：" + session.getVideoHall() + "，放映时间：" + session.getShowtime() + "，座位信息：" + selectedRows[i] + "-" + selectedCols[i] + "，电影票的电子ID编号：" + ticketID[i]);
+                    }
+                }
+            } else {
+                System.out.println("订购数量超出空闲座位数");
+            }
+        } else System.out.println("该场次不存在");
     }
 }

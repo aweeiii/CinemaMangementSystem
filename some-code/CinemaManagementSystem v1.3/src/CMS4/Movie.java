@@ -1,4 +1,4 @@
-package CMS;
+package CMS4;
 
 public class Movie {
     private String movieName;
@@ -56,5 +56,16 @@ public class Movie {
 
     public void setSynopsis(String synopsis) {
         this.synopsis = synopsis;
+    }
+
+    @Override
+    public String toString() {
+        return "Movie{" +
+                "movieName='" + movieName + '\'' +
+                ", director='" + director + '\'' +
+                ", leadingRole='" + leadingRole + '\'' +
+                ", synopsis='" + synopsis + '\'' +
+                ", duration='" + duration + '\'' +
+                '}';
     }
 }

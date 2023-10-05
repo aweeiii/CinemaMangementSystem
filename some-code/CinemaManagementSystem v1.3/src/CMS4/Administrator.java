@@ -1,12 +1,46 @@
-package CMS;
-import java.time.LocalDateTime;
+package CMS4;
+
+import org.mindrot.jbcrypt.BCrypt;
 import java.util.Scanner;
 
 public class Administrator extends Person {
+    private String username;
+    private String password;
+
     public Administrator() {
     }
+
     public Administrator(String username, String password) {
-        super(username, password);
+        this.username = username;
+        this.password = password;
+    }
+
+    @Override
+    public String toString() {
+        return "Administrator{" +
+                "username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     //管理员登录
@@ -15,15 +49,18 @@ public class Administrator extends Person {
         if (userIndex != -1) {
             Administrator administrator = (Administrator) administratorList.get(userIndex);
             if (!administrator.isLocked()) {
-                if (administrator.getPassword().equals(password)) {
+                // 获取存储在数据库或文件中的密码哈希
+                String storedHashedPassword = administrator.getPassword();
+                // 比较用户提供的密码哈希与存储的密码哈希
+                if (BCrypt.checkpw(password, storedHashedPassword)) {
                     loginAttempts.remove(username);
                     System.out.println("登录成功，欢迎：" + username + "!");
-                    administratorMenu1(username,password);
+                    administratorMenu1(username, password);
                 } else {
                     int attempts = loginAttempts.getOrDefault(username, 0) + 1;
                     loginAttempts.put(username, attempts);
                     if (attempts >= 5) {
-                        //user.lockAccount();
+                        //administrator.lockAccount();
                         System.out.println("由于登录次数过多，账户已被锁定");
                     } else {
                         System.out.println("密码错误。剩余尝试次数：" + (5 - attempts));
@@ -36,8 +73,9 @@ public class Administrator extends Person {
             System.out.println("用户不存在");
         }
     }
+
     public void administratorMainMenu() {
-        Scanner sc=new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
         boolean shouldExit = false;
         while (!shouldExit) {
             System.out.println("=====================================");
@@ -52,14 +90,16 @@ public class Administrator extends Person {
                     String username = sc.next();
                     System.out.println("请输入你的密码：");
                     String password = sc.next();
-                    loginAdmin(username, password);}
+                    loginAdmin(username, password);
+                }
                 case "e" -> shouldExit = true;
                 default -> System.out.println("无效的选项，请重新选择。");
             }
         }
     }
-    public void administratorMenu1(String username,String password) {
-        Scanner sc=new Scanner(System.in);
+
+    public void administratorMenu1(String username, String password) {
+        Scanner sc = new Scanner(System.in);
         boolean shouldExit = false;
         while (!shouldExit) {
             System.out.println("=====================================");
@@ -70,15 +110,16 @@ public class Administrator extends Person {
             System.out.println("=====================================");
             String choice = sc.next();
             switch (choice) {
-                case "1" -> administratorMenu2(username,password);
+                case "1" -> administratorMenu2(username, password);
                 case "2" -> administratorMenu3();
                 case "e" -> shouldExit = true;
                 default -> System.out.println("无效的选项，请重新选择。");
             }
         }
     }
-    public void administratorMenu2(String username,String password) {
-        Scanner sc=new Scanner(System.in);
+
+    public void administratorMenu2(String username, String password) {
+        Scanner sc = new Scanner(System.in);
         boolean shouldExit = false;
         while (!shouldExit) {
             System.out.println("=====================================");
@@ -89,23 +130,24 @@ public class Administrator extends Person {
             System.out.println("=====================================");
             String choice = sc.next();
             switch (choice) {
-                case "1" -> changePassword(administratorList,username,password);
+                case "1" -> changePassword(administratorList, username, password);
                 case "2" -> {
                     System.out.println("请输入相应数字选择你要重置密码的用户类型");
                     System.out.println("1.经理");
                     System.out.println("2.前台");
-                    int num=sc.nextInt();
+                    int num = sc.nextInt();
                     System.out.println("请输入需要重置密码的用户名：");
                     username = sc.next();
-                    resetPassword2(username,num);
+                    resetPassword2(username, num);
                 }
                 case "e" -> shouldExit = true;
                 default -> System.out.println("无效的选项，请重新选择。");
             }
         }
     }
+
     public void administratorMenu3() {
-        Scanner sc=new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
         boolean shouldExit = false;
         int num;
         while (!shouldExit) {
@@ -124,39 +166,38 @@ public class Administrator extends Person {
                     printUserInfo(managerList);
                     printUserInfo(FrontDeskList);
                 }
-                case "2"->{
+                case "2" -> {
                     System.out.println("请输入你要删除的用户类型：");
                     System.out.println("1.经理");
                     System.out.println("2.前台");
-                    num=sc.nextInt();
+                    num = sc.nextInt();
                     System.out.println("请输入你要删除的用户名：");
-                    String username=sc.next();
+                    String username = sc.next();
                     System.out.println("确认删除？？？");
                     System.out.println("确认请按1");
                     System.out.println("取消请按0");
-                    int choose= sc.nextInt();
-                    if(choose==1) deleteUserInfo(username,num);
-                    if (choose==0) return;
+                    int choose = sc.nextInt();
+                    if (choose == 1) deleteUserInfo(username, num);
+                    if (choose == 0) return;
                 }
-                case "3"->{
+                case "3" -> {
                     System.out.println("请输入你要查找的用户类型：");
                     System.out.println("1.经理");
                     System.out.println("2.前台");
-                    num=sc.nextInt();
-                    if(num==1)findUserInfo(managerList);
+                    num = sc.nextInt();
+                    if (num == 1) findUserInfo(managerList);
                     else if (num == 2) {
                         findUserInfo(FrontDeskList);
                     }
                 }
-                case "4"->
-                        addNewUser();
-                case "5"->{
+                case "4" -> addNewUser();
+                case "5" -> {
                     System.out.println("请输入你要修改的用户类型");
                     System.out.println("1.经理");
                     System.out.println("2.前台");
-                    num= sc.nextInt();
+                    num = sc.nextInt();
                     System.out.println("请输入你要修改的用户的用户名");
-                    String username=sc.next();
+                    String username = sc.next();
                     modifyUserInfo(username, num);
                 }
                 case "e" -> shouldExit = true;
@@ -164,44 +205,48 @@ public class Administrator extends Person {
             }
         }
     }
+
     //管理员删除影城方信息
-    public void deleteUserInfo(String username,int num){
+    public void deleteUserInfo(String username, int num) {
         int userIndex;
-        if(num==1){
-            userIndex=findUserIndexByUsername(managerList,username);
-            if (userIndex!=-1){
+        if (num == 1) {
+            userIndex = findUserIndexByUsername(managerList, username);
+            if (userIndex != -1) {
                 managerList.remove(userIndex);
-            }else System.out.println("用户不存在。");
-        }else if (num==2){
-            userIndex=findUserIndexByUsername(FrontDeskList,username);
-            if (userIndex!=-1){
+            } else System.out.println("用户不存在。");
+        } else if (num == 2) {
+            userIndex = findUserIndexByUsername(FrontDeskList, username);
+            if (userIndex != -1) {
                 FrontDeskList.remove(userIndex);
-            }else System.out.println("用户不存在。");
-        }else System.out.println("无效的用户类型");
+            } else System.out.println("用户不存在。");
+        } else System.out.println("无效的用户类型");
     }
+
     //管理员添加影城方用户信息
-    public void addNewUser(){
+    public void addNewUser() {
         System.out.println("请开始输入你要增加的用户信息：");
-        Scanner sc=new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
         System.out.println("请输入你要添加的用户ID：");
-        String userID=sc.next();
+        String userID = sc.next();
         System.out.println("请输入你要添加的用户名：");
-        String username=sc.next();
-        LocalDateTime registrationTime=LocalDateTime.now();
+        String username = sc.next();
         System.out.println("请输入你要添加的用户类型：");
-        String userType=sc.next();
+        String userType = sc.next();
         System.out.println("请输入你要添加的用户手机号：");
-        String phoneNumber=sc.next();
+        String phoneNumber = sc.next();
         System.out.println("请输入你要添加的用户邮箱：");
-        String email=sc.next();
+        String email = sc.next();
         System.out.println("请输入你要添加的用户密码：");
-        String password=sc.next();
-        if (userType.equals("经理")){
-            managerList.add(new Manager(userID,username,registrationTime,userType,password,phoneNumber,email));
+        String password = sc.next();
+        if (userType.equals("经理")) {
+            managerList.add(new Manager(userID, username, generateRegistrationTime(), userType, password, phoneNumber, email));
         } else if (userType.equals("前台")) {
-            FrontDeskList.add(new FrontDesk(userID,username,registrationTime,userType,password,phoneNumber,email));
-        }else {System.out.println("无效的用户类型");return;}
+            FrontDeskList.add(new FrontDesk(userID, username, generateRegistrationTime(), userType, password, phoneNumber, email));
+        } else {
+            System.out.println("无效的用户类型");
+        }
     }
+
     //管理员修改影城方用户信息
     public void modifyUserInfo(String username, int num) {
         Scanner sc = new Scanner(System.in);
@@ -235,7 +280,7 @@ public class Administrator extends Person {
             } else {
                 System.out.println("用户不存在");
             }
-        } else if (num==2) {
+        } else if (num == 2) {
             userIndex = findUserIndexByUsername(FrontDeskList, username);
             if (userIndex != -1) {
                 System.out.println("请选择你想要修改的用户信息：");

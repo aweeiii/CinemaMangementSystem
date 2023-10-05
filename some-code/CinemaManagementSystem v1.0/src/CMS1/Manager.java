@@ -1,10 +1,9 @@
-package CMS;
+package CMS1;
 
-import java.time.LocalDateTime;
 import java.util.Scanner;
 
 public class Manager extends Person {
-    private LocalDateTime registrationTime; // 注册时间
+    private String registrationTime; // 注册时间
     private String phoneNumber; // 手机号
     private String email;// 邮箱
     private String type;
@@ -17,21 +16,22 @@ public class Manager extends Person {
     public Manager() {
     }
 
-    public Manager(String userID,String username,LocalDateTime registrationTime,String type,String password,  String phoneNumber, String email) {
-        this.userID=userID;
-        this.username=username;
-        this.password=password;
+
+    public Manager(String userID, String username, String registrationTime, String type, String password, String phoneNumber, String email) {
+        this.userID = userID;
+        this.username = username;
+        this.password = password;
         this.registrationTime = registrationTime;
         this.phoneNumber = phoneNumber;
-        this.type=type;
+        this.type = type;
         this.email = email;
     }
 
-    public LocalDateTime getRegistrationTime() {
+    public String getRegistrationTime() {
         return registrationTime;
     }
 
-    public void setRegistrationTime(LocalDateTime registrationTime) {
+    public void setRegistrationTime(String registrationTime) {
         this.registrationTime = registrationTime;
     }
 
@@ -101,14 +101,14 @@ public class Manager extends Person {
 
     //经理登录
     public void loginManager(String username, String password) {
-        int userIndex=findUserIndexByUsername(managerList,username);
-        if (userIndex!=-1) {
+        int userIndex = findUserIndexByUsername(managerList, username);
+        if (userIndex != -1) {
             Manager manager = (Manager) managerList.get(userIndex);
             if (!manager.isLocked()) {
                 if (manager.getPassword().equals(password)) {
                     loginAttempts.remove(username);
                     System.out.println("登录成功，欢迎：" + username + "!");
-                    managerMenu1(username,password);
+                    managerMenu1(username, password);
                 } else {
                     int attempts = loginAttempts.getOrDefault(username, 0) + 1;
                     loginAttempts.put(username, attempts);
@@ -126,8 +126,9 @@ public class Manager extends Person {
             System.out.println("用户不存在");
         }
     }
+
     public void managerMainMenu() {
-        Scanner sc=new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
         boolean shouldExit = false;
         while (!shouldExit) {
             System.out.println("=====================================");
@@ -142,14 +143,16 @@ public class Manager extends Person {
                     String username = sc.next();
                     System.out.println("请输入你的密码：");
                     String password = sc.next();
-                    loginManager(username,password);}
+                    loginManager(username, password);
+                }
                 case "e" -> shouldExit = true;
                 default -> System.out.println("无效的选项，请重新选择。");
             }
         }
     }
-    public void managerMenu1(String username,String password) {
-        Scanner sc=new Scanner(System.in);
+
+    public void managerMenu1(String username, String password) {
+        Scanner sc = new Scanner(System.in);
         boolean shouldExit = false;
         while (!shouldExit) {
             System.out.println("=====================================");
@@ -162,7 +165,7 @@ public class Manager extends Person {
             System.out.println("=====================================");
             String choice = sc.next();
             switch (choice) {
-                case "1" -> managerMenu2(username,password);
+                case "1" -> managerMenu2(username, password);
                 case "2" -> managerMenu3();
                 case "3" -> managerMenu4();
                 case "4" -> managerMenu5();
@@ -171,8 +174,9 @@ public class Manager extends Person {
             }
         }
     }
-    public void managerMenu2(String username,String password) {
-        Scanner sc=new Scanner(System.in);
+
+    public void managerMenu2(String username, String password) {
+        Scanner sc = new Scanner(System.in);
         boolean shouldExit = false;
         while (!shouldExit) {
             System.out.println("=====================================");
@@ -183,19 +187,20 @@ public class Manager extends Person {
             System.out.println("=====================================");
             String choice = sc.next();
             switch (choice) {
-                case "1" -> changePassword(managerList,username,password);
+                case "1" -> changePassword(managerList, username, password);
                 case "2" -> {
                     System.out.println("请输入需要重置密码的用户名：");
                     username = sc.next();
-                    resetPassword2(username,3);
+                    resetPassword2(username, 3);
                 }
                 case "e" -> shouldExit = true;
                 default -> System.out.println("无效的选项，请重新选择。");
             }
         }
     }
+
     public void managerMenu3() {
-        Scanner sc=new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
         boolean shouldExit = false;
         while (!shouldExit) {
             System.out.println("=====================================");
@@ -213,17 +218,17 @@ public class Manager extends Person {
                 case "2" -> addNewMovie();
                 case "3" -> {
                     System.out.println("请输入你要修改信息的影片名：");
-                    String movieName=sc.next();
+                    String movieName = sc.next();
                     modifyMovieInfo(movieName);
                 }
                 case "4" -> {
                     System.out.println("请输入你要删除信息的影片名：");
-                    String movieName=sc.next();
+                    String movieName = sc.next();
                     deleteMovieInfo(movieName);
                 }
-                case "5"->{
+                case "5" -> {
                     System.out.println("请输入你的已知信息：");
-                    String info=sc.next();
+                    String info = sc.next();
                     findMovieInfo(info);
                 }
                 case "e" -> shouldExit = true;
@@ -231,8 +236,9 @@ public class Manager extends Person {
             }
         }
     }
+
     public void managerMenu4() {
-        Scanner sc=new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
         boolean shouldExit = false;
         while (!shouldExit) {
             System.out.println("=====================================");
@@ -254,8 +260,9 @@ public class Manager extends Person {
             }
         }
     }
+
     public void managerMenu5() {
-        Scanner sc=new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
         boolean shouldExit = false;
         while (!shouldExit) {
             System.out.println("=====================================");
@@ -275,22 +282,23 @@ public class Manager extends Person {
     }
 
     //经理添加影片的信息
-    public void addNewMovie(){
+    public void addNewMovie() {
         System.out.println("请开始输入你要增加的影片信息：");
-        Scanner sc=new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
         System.out.println("请输入你要添加的片名：");
-        String movieName=sc.next();
+        String movieName = sc.next();
         System.out.println("请输入你添加影片的导演：");
-        String director=sc.next();
+        String director = sc.next();
         System.out.println("请输入你要添加影片的主演：");
-        String leadingRole=sc.next();
+        String leadingRole = sc.next();
         System.out.println("请输入你要添加影片的剧情简介：");
-        String synopsis=sc.next();
+        String synopsis = sc.next();
         System.out.println("请输入你要添加影片的时长：");
-        String duration=sc.next();
-        movieList.add(new Movie(movieName,director,leadingRole,synopsis,duration));
+        String duration = sc.next();
+        movieList.add(new Movie(movieName, director, leadingRole, synopsis, duration));
         System.out.println("影片添加成功！");
     }
+
     //经理修改影片信息
     public void modifyMovieInfo(String MovieName) {
         Scanner sc = new Scanner(System.in);
@@ -336,53 +344,58 @@ public class Manager extends Person {
             System.out.println("影片名不存在");
         }
     }
+
     //经理删除影片信息
-    public void deleteMovieInfo(String MovieName){
+    public void deleteMovieInfo(String MovieName) {
         int movieIndex;
-        movieIndex=findMovieIndexByMovieName(movieList,MovieName);
-        if (movieIndex!=-1){
+        movieIndex = findMovieIndexByMovieName(movieList, MovieName);
+        if (movieIndex != -1) {
             movieList.remove(movieIndex);
-        }else System.out.println("影片名不存在。");
+            System.out.println("该影片删除成功！");
+        } else System.out.println("影片名不存在。");
     }
+
     //经理查询影片信息
-    public void findMovieInfo(String info){
-        for (Movie movie: movieList) {
-            if(movie.getMovieName().equals(info)||movie.getDirector().equals(info)||movie.getLeadingRole().equals(info)){
-                System.out.println("片名：" + movie.getMovieName() + "，导演：" + movie.getDirector()+ "，主演：" + movie.getLeadingRole() + "，剧情简介：" + movie.getSynopsis()+ "，时长："+movie.getDuration());
-            }else System.out.println("没有查询到任何信息");
+    public void findMovieInfo(String info) {
+        for (Movie movie : movieList) {
+            if (movie.getMovieName().equals(info) || movie.getDirector().equals(info) || movie.getLeadingRole().equals(info)) {
+                System.out.println("片名：" + movie.getMovieName() + "，导演：" + movie.getDirector() + "，主演：" + movie.getLeadingRole() + "，剧情简介：" + movie.getSynopsis() + "，时长：" + movie.getDuration());
+            } else System.out.println("没有查询到任何信息");
         }
     }
+
     //经理增加场次
-    public void addNewSession(){
+    public void addNewSession() {
         System.out.println("请开始输入你要增加的场次信息：");
-        Scanner sc=new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
         System.out.println("请输入该场次放映的影片名：");
-        String movieName=sc.next();
+        String movieName = sc.next();
         System.out.println("请输入该场次的价格：");
-        double ticketPrice=sc.nextDouble();
+        double ticketPrice = sc.nextDouble();
         System.out.println("请输入该场次的放映厅：");
-        String videoHall=sc.next();
+        String videoHall = sc.next();
         System.out.println("请输入该场次的放映时间：");
-        String showtime=sc.next();
+        String showtime = sc.next();
         System.out.println("请输入该场次的总座位：");
-        int totalSeats= sc.nextInt();
+        int totalSeats = sc.nextInt();
         System.out.println("请输入行数：");
-        int numRows=sc.nextInt();
+        int numRows = sc.nextInt();
         System.out.println("请输入列数：");
-        int numCols= sc.nextInt();
-        movieSession session=new movieSession(movieName,ticketPrice,videoHall,showtime,totalSeats,totalSeats);
-        sessionList.add(new movieSession(movieName,ticketPrice,videoHall,showtime,totalSeats,totalSeats,session.initializeSeatMap(numRows,numCols)));
+        int numCols = sc.nextInt();
+        movieSession session = new movieSession(movieName, ticketPrice, videoHall, showtime, totalSeats, totalSeats);
+        sessionList.add(new movieSession(movieName, ticketPrice, videoHall, showtime, totalSeats, totalSeats, session.initializeSeatMap(numRows, numCols)));
         System.out.println("该场次已成功添加！");
     }
+
     //经理修改场次
     public void modifySession() {
         Scanner sc = new Scanner(System.in);
         System.out.println("请输入你想要修改的场次：电影名，放映厅，放映时间");
-        String movieName=sc.next();
-        String videoHall=sc.next();
-        String showtime=sc.next();
-        int sessionIndex=findSessionIndexByMovieName(sessionList,movieName,videoHall,showtime);
-        if (sessionIndex!= -1) {
+        String movieName = sc.next();
+        String videoHall = sc.next();
+        String showtime = sc.next();
+        int sessionIndex = findSessionIndexByMovieName(sessionList, movieName, videoHall, showtime);
+        if (sessionIndex != -1) {
             System.out.println("请选择你想要修改的场次信息：");
             System.out.println("1.将该场次改放其他电影");
             System.out.println("2.空场");
@@ -398,22 +411,25 @@ public class Manager extends Person {
             System.out.println("场次信息已成功修改。");
         } else System.out.println("该场次不存在");
     }
+
     //经理删除场次
-    public void deleteSession(){
+    public void deleteSession() {
         Scanner sc = new Scanner(System.in);
         System.out.println("请输入你想要删除的场次：电影名，放映厅，放映时间");
-        String movieName=sc.next();
-        String videoHall=sc.next();
-        String showtime=sc.next();
-        int sessionIndex=findSessionIndexByMovieName(sessionList,movieName,videoHall,showtime);
-        if(sessionIndex!=-1){
+        String movieName = sc.next();
+        String videoHall = sc.next();
+        String showtime = sc.next();
+        int sessionIndex = findSessionIndexByMovieName(sessionList, movieName, videoHall, showtime);
+        if (sessionIndex != -1) {
             sessionList.remove(sessionIndex);
-        }else System.out.println("该场次不存在");
+            System.out.println("该场次删除成功！");
+        } else System.out.println("该场次不存在");
     }
+
     //经理列出所有场次信息
     public void printSessionInfo() {
-        for (movieSession session: sessionList) {
-            System.out.println("片名：" + session.getMovieName() + "，放映厅：" + session.getVideoHall()+ "，票价：" + session.getTicketPrice() + "，放映时间：" + session.getShowtime());
+        for (movieSession session : sessionList) {
+            System.out.println("片名：" + session.getMovieName() + "，放映厅：" + session.getVideoHall() + "，票价：" + session.getTicketPrice() + "，放映时间：" + session.getShowtime());
         }
     }
 }

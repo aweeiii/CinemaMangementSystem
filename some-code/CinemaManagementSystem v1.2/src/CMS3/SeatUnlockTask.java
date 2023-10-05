@@ -1,4 +1,4 @@
-package CMS;
+package CMS3;
 
 import java.util.TimerTask;
 
@@ -7,7 +7,7 @@ public class SeatUnlockTask extends TimerTask {
     private int col;
     private String[][] seatMap;
 
-    public SeatUnlockTask(int row, int col,String[][] seatMap) {
+    public SeatUnlockTask(int row, int col, String[][] seatMap) {
         this.row = row;
         this.col = col;
         this.seatMap = seatMap;

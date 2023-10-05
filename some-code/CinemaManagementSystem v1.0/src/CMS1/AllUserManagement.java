@@ -1,45 +1,50 @@
-package CMS;
+package CMS1;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
-    public class AllUserManagement {
-        public static List<Person> userList = new ArrayList<>();
-        public static List<Person> administratorList = new ArrayList<>();
-        public static List<Person> managerList = new ArrayList<>();
-        public static List<Person> FrontDeskList = new ArrayList<>();
-        public static List<Movie> movieList =new ArrayList<>();
-        public static List<movieSession> sessionList=new ArrayList<>();
-        public Map<String, Integer> loginAttempts = new HashMap<>();
+
+public class AllUserManagement {
+    public static List<Person> userList = new ArrayList<>();
+    public static List<Person> administratorList = new ArrayList<>();
+    public static List<Person> managerList = new ArrayList<>();
+    public static List<Person> FrontDeskList = new ArrayList<>();
+    public static List<Movie> movieList = new ArrayList<>();
+    public static List<movieSession> sessionList = new ArrayList<>();
+    public Map<String, Integer> loginAttempts = new HashMap<>();
 
 
     //重置所有用户密码
-    public void resetPassword2(String username,int num){
-        Scanner sc=new Scanner(System.in);
-        if(num==1){
-            int userIndex = findUserIndexByUsername(managerList,username);
+    public void resetPassword2(String username, int num) {
+        Scanner sc = new Scanner(System.in);
+        if (num == 1) {
+            int userIndex = findUserIndexByUsername(managerList, username);
             if (userIndex != -1) {
-                Manager manager= (Manager) managerList.get(userIndex);
+                Manager manager = (Manager) managerList.get(userIndex);
                 System.out.println("请输入新密码：");
                 String newPassword = sc.next();
-                    manager.setPassword(newPassword);
-                    System.out.println("新密码： " + newPassword);
-                } else {
+                manager.setPassword(newPassword);
+                System.out.println("新密码： " + newPassword);
+            } else {
                 System.out.println("用户不存在");
             }
-        }if(num==2){
-            int userIndex = findUserIndexByUsername(FrontDeskList,username);
+        }
+        if (num == 2) {
+            int userIndex = findUserIndexByUsername(FrontDeskList, username);
             if (userIndex != -1) {
-                FrontDesk frontDesk= (FrontDesk) FrontDeskList.get(userIndex);
+                FrontDesk frontDesk = (FrontDesk) FrontDeskList.get(userIndex);
                 System.out.println("请输入新密码：");
                 String newPassword = sc.next();
                 frontDesk.setPassword(newPassword);
                 System.out.println("新密码： " + newPassword);
             } else {
                 System.out.println("用户不存在");
+            }
         }
-        }if(num==3){
-            int userIndex = findUserIndexByUsername(userList,username);
+        if (num == 3) {
+            int userIndex = findUserIndexByUsername(userList, username);
             if (userIndex != -1) {
-                User user= (User) userList.get(userIndex);
+                User user = (User) userList.get(userIndex);
                 System.out.println("请输入新密码：");
                 String newPassword = sc.next();
                 user.setPassword(newPassword);
@@ -51,9 +56,9 @@ import java.util.*;
     }
 
     //所有用户的修改密码
-    public void changePassword(List<Person> list,String username, String password) {
+    public void changePassword(List<Person> list, String username, String password) {
         Scanner sc = new Scanner(System.in);
-        int userIndex = findUserIndexByUsername(list,username);
+        int userIndex = findUserIndexByUsername(list, username);
         while (true) {
             if (userIndex != -1) {
                 User user = (User) userList.get(userIndex);
@@ -69,8 +74,6 @@ import java.util.*;
                     } else {
                         System.out.println("两次密码输入不一致，请重新输入");
                     }
-                } else {
-                    System.out.println("旧密码输入错误，请重新输入");
                 }
             } else {
                 System.out.println("用户名不存在，请重新输入用户名或输入 'e' 退出：");
@@ -79,11 +82,12 @@ import java.util.*;
                     break;                 // 退出
                 } else {
                     username = input; // 更新用户名
-                    changePassword(list,username,password);
+                    changePassword(list, username, password);
                 }
             }
         }
     }
+
     //列出所有种类的用户信息
     public void printUserInfo(List<Person> list) {
         for (Person person : list) {
@@ -104,14 +108,14 @@ import java.util.*;
         String input = sc.next();
         int userIndex;
         int userIndex1 = findUserIndexByUsername(list, input);
-        int userIndex2=findUserIndexByUserID(list,input);
-        if (userIndex1 == -1&&userIndex2==-1) {
+        int userIndex2 = findUserIndexByUserID(list, input);
+        if (userIndex1 == -1 && userIndex2 == -1) {
             System.out.println("用户不存在");
             return;
-        }else if(userIndex1!=-1){
-            userIndex=userIndex1;
-        }else {
-            userIndex=userIndex2;
+        } else if (userIndex1 != -1) {
+            userIndex = userIndex1;
+        } else {
+            userIndex = userIndex2;
         }
         Person user = list.get(userIndex);
         if (user instanceof User userObj) {
@@ -122,6 +126,7 @@ import java.util.*;
             System.out.println("用户ID：" + frontDeskObj.getUserID() + "，用户名：" + frontDeskObj.getUsername() + "，用户注册时间：" + frontDeskObj.getRegistrationTime() + "，用户类型：" + frontDeskObj.getType() + "，用户手机号：" + frontDeskObj.getPhoneNumber() + "，用户邮箱：" + frontDeskObj.getEmail());
         }
     }
+
     //密码合法性检查
     public boolean isPasswordValid(String password) {
         // (长度大于8，包含大写字母、小写字母、数字和特殊字符)
@@ -141,8 +146,9 @@ import java.util.*;
         }
         return password.toString();
     }
+
     //随机生成用户ID
-    public String getRandomUserID(){
+    public String getRandomUserID() {
         //所有允许的字符集合
         String allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
         StringBuilder userID = new StringBuilder();
@@ -153,8 +159,9 @@ import java.util.*;
         }
         return userID.toString();
     }
+
     //通过用户名寻找索引
-    public int findUserIndexByUsername(List<Person> list,String username) {
+    public int findUserIndexByUsername(List<Person> list, String username) {
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getUsername().equals(username)) {
                 return i;
@@ -162,8 +169,9 @@ import java.util.*;
         }
         return -1;
     }
+
     //通过用户ID寻找索引
-    public int findUserIndexByUserID(List<Person> list,String userID) {
+    public int findUserIndexByUserID(List<Person> list, String userID) {
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getUserID().equals(userID)) {
                 return i;
@@ -171,41 +179,56 @@ import java.util.*;
         }
         return -1;
     }
+
+    //通过用户手机号寻找索引
+    public int findUserIndexByPhoneNumber(List<Person> list, String phoneNumber) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getPhoneNumber().equals(phoneNumber)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     //通过电影名寻找索引
-    public int findMovieIndexByMovieName(List<Movie> list,String MovieName) {
+    public int findMovieIndexByMovieName(List<Movie> list, String MovieName) {
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getMovieName().equals(MovieName)) {
                 return i;
             }
         }
-            return -1;
+        return -1;
     }
-        public int findSessionIndexByMovieName(List<movieSession> list,String MovieName,String videoHall,String showtime) {
-            for (int i = 0; i < list.size(); i++) {
-                if (list.get(i).getMovieName().equals(MovieName)&&list.get(i).getVideoHall().equals(videoHall)&&list.get(i).getShowtime().equals(showtime)) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-        //列出所有正在上映的影片信息
-        public void printMovieInfo() {
-            for (Movie movie: movieList) {
-                System.out.println("片名：" + movie.getMovieName() + "，导演：" + movie.getDirector()+ "，主演：" + movie.getLeadingRole() + "，剧情简介：" + movie.getSynopsis()+ "，时长："+movie.getDuration());
+
+    public int findSessionIndexByMovieName(List<movieSession> list, String MovieName, String videoHall, String showtime) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getMovieName().equals(MovieName) && list.get(i).getVideoHall().equals(videoHall) && list.get(i).getShowtime().equals(showtime)) {
+                return i;
             }
         }
+        return -1;
+    }
+
+    //列出所有正在上映的影片信息
+    public void printMovieInfo() {
+        for (Movie movie : movieList) {
+            System.out.println("片名：" + movie.getMovieName() + "，导演：" + movie.getDirector() + "，主演：" + movie.getLeadingRole() + "，剧情简介：" + movie.getSynopsis() + "，时长：" + movie.getDuration());
+        }
+    }
+
     //消费者和前台查看指定电影放映信息
-    public void  viewAppointedMovieInfo(){
+    public void viewAppointedMovieInfo() {
         System.out.println("请输入你要查看的电影名字：");
-        Scanner sc=new Scanner(System.in);
-        String movieName=sc.next();
-        for (movieSession session:sessionList) {
-            if(session.getMovieName().equals(movieName)){
-                System.out.println("片名：" + session.getMovieName() + "，放映厅：" + session.getVideoHall()+ "，票价：" + session.getTicketPrice() + "，放映时间：" + session.getShowtime()+"，总座位数："+session.getTotalSeats()+"，空闲座位数："+session.getAvailableSeats());
-                session.displaySeatMap(7,12);
+        Scanner sc = new Scanner(System.in);
+        String movieName = sc.next();
+        for (movieSession session : sessionList) {
+            if (session.getMovieName().equals(movieName)) {
+                System.out.println("片名：" + session.getMovieName() + "，放映厅：" + session.getVideoHall() + "，票价：" + session.getTicketPrice() + "，放映时间：" + session.getShowtime() + "，总座位数：" + session.getTotalSeats() + "，空闲座位数：" + session.getAvailableSeats());
+                session.displaySeatMap(7, 12, session.getSeatMap());
             }
         }
     }
+
     //随机生成电影票的ID
     public String getTicketID() {
         StringBuilder ticketID = new StringBuilder();
@@ -234,9 +257,17 @@ import java.util.*;
 
         return ticketID.toString();
     }
+
     //判断购买电影票的座位是否合法
-    public boolean isValidSeat(int row, int col,movieSession session) {
-        return row >= 1 && row <= 7 && col >= 1 && col <= 12 && session.getSeatMap()[row - 1][col - 1] .equals("O") ;
+    public boolean isValidSeat(int row, int col, movieSession session) {
+        return row >= 1 && row <= 7 && col >= 1 && col <= 12 && session.getSeatMap()[row - 1][col - 1].equals("O");
+    }
+
+    public static String generateRegistrationTime() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        LocalDateTime dateTime = LocalDateTime.now();
+        String RegistrationTime = dateTime.format(formatter);
+        return RegistrationTime;
     }
 
 }
